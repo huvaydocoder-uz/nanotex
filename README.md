@@ -16,6 +16,7 @@ Bu repozitoriyda saytning tayyor (build qilingan) statik fayllari joylashgan:
 | `assets/LogoAnimation-*.js` | Sayt ochilishidagi logo animatsiyasi |
 | `assets/nanotex-theme.css` | Kunduzgi rejim, til tugmalari va bayroqlar uslublari |
 | `images/` | Slayder, bo‘limlar va bajarilgan ishlar rasmlari (avif/webp, 800 va 1600 px) |
+| `catalog/` | Mahsulotlar katalogi rasmlari (webp), kategoriyalar bo‘yicha papkalarda |
 | `brand/`, `og.jpg`, `favicon.svg` | Logotip va ijtimoiy tarmoqlar uchun rasm |
 
 ## Imkoniyatlari
@@ -34,5 +35,4 @@ npx serve .
 
 ## Eslatmalar
 
-- Mahsulotlar katalogi rasmlari (`/catalog/...`) bu repozitoriyda yo‘q — ular alohida joylashtirilishi kerak.
 - So‘rov shakli `/api/lead` serverless funksiyasiga murojaat qiladi; u ham bu repozitoriyga kirmagan.
