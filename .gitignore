@@ -13,3 +13,6 @@ Desktop.ini
 
 # Vercel
 .vercel
+
+# Impeccable kesh
+.impeccable/hook.cache.json

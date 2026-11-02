@@ -1,0 +1,457 @@
+/* NANOTEX — shoxobcha konstruktori. Ranglar sayt o'zgaruvchilaridan olinadi:
+   --color-ink (fon) va --color-white (matn) kunduzgi rejimda o'zaro almashadi. */
+
+.nt-cfg-section {
+  --cfg-line: color-mix(in oklab, var(--color-white) 12%, transparent);
+  --cfg-soft: color-mix(in oklab, var(--color-white) 4%, transparent);
+  --cfg-muted: color-mix(in oklab, var(--color-white) 62%, transparent);
+}
+
+.nt-cfg-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+/* Katta ekranda ikki ustun bir xil balandlikda: vizual karta qolgan joyni egallaydi */
+@media (min-width: 64rem) {
+  .nt-cfg-grid {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    align-items: stretch;
+    gap: 2rem;
+  }
+
+  .nt-cfg-side {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nt-cfg-card {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .nt-cfg-card .nt-cfg-visual {
+    flex: 1;
+    min-height: 16rem;
+    aspect-ratio: auto;
+  }
+}
+
+.nt-cfg-form {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--cfg-line);
+  border-radius: 1.5rem;
+  background: var(--cfg-soft);
+}
+
+@media (min-width: 40rem) {
+  .nt-cfg-form {
+    padding: 1.75rem;
+  }
+}
+
+.nt-cfg-field {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.nt-cfg-field legend {
+  margin-bottom: 0.65rem;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.nt-cfg-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--cfg-muted);
+}
+
+.nt-cfg-error:empty {
+  display: none;
+}
+
+.nt-cfg-error {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: #ff6b62;
+}
+
+/* Matn va son maydonlari */
+.nt-cfg-form input[type="text"],
+.nt-cfg-form input[type="number"] {
+  width: 100%;
+  min-height: 2.875rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--cfg-line);
+  border-radius: 0.85rem;
+  background: var(--color-ink);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nt-cfg-form input[type="text"]::placeholder {
+  color: color-mix(in oklab, var(--color-white) 38%, transparent);
+}
+
+.nt-cfg-form input:focus-visible {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand) 28%, transparent);
+}
+
+.nt-cfg-dims {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.nt-cfg-dims label {
+  flex: 1;
+  min-width: 0;
+}
+
+.nt-cfg-dims label span {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--cfg-muted);
+}
+
+.nt-cfg-times {
+  padding-bottom: 0.7rem;
+  color: var(--cfg-muted);
+}
+
+/* Tanlov tugmalari */
+.nt-cfg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nt-cfg-chip,
+.nt-cfg-place {
+  min-height: 2.75rem;
+  border: 1px solid var(--cfg-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-white);
+  font: inherit;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.nt-cfg-chip {
+  min-width: 2.75rem;
+  padding: 0.45rem 0.95rem;
+}
+
+.nt-cfg-chip:hover,
+.nt-cfg-place:hover {
+  border-color: color-mix(in oklab, var(--color-brand) 60%, transparent);
+}
+
+.nt-cfg-chip[aria-pressed="true"],
+.nt-cfg-place[aria-pressed="true"] {
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+  color: #111;
+  font-weight: 600;
+}
+
+.nt-cfg-chip:focus-visible,
+.nt-cfg-place:focus-visible,
+.nt-cfg-swatch:focus-visible,
+.nt-cfg-order:focus-visible,
+.nt-cfg-remove:focus-visible,
+.nt-cfg-similar:focus-visible,
+.nt-cfg-drop:focus-within {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.nt-cfg-places {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.nt-cfg-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.7rem 0.4rem;
+  border-radius: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.nt-cfg-ico {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+}
+
+/* Rang namunalari */
+.nt-cfg-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.nt-cfg-swatch {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 2px solid var(--cfg-line);
+  border-radius: 999px;
+  background: var(--sw);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.nt-cfg-swatch[aria-pressed="true"] {
+  border-color: var(--color-white);
+  box-shadow: 0 0 0 3px var(--color-brand);
+}
+
+.nt-cfg-custom {
+  overflow: hidden;
+  background: conic-gradient(#ff4d4d, #ffc400, #3ddc84, #2aa8ff, #9b5cff, #ff4d4d);
+}
+
+.nt-cfg-custom input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .nt-cfg-swatch:hover,
+  .nt-cfg-chip:hover,
+  .nt-cfg-place:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Logotip yuklash */
+.nt-cfg-logo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nt-cfg-drop {
+  display: flex;
+  flex: 1;
+  min-width: 14rem;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem;
+  border: 1px dashed color-mix(in oklab, var(--color-white) 28%, transparent);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.nt-cfg-drop:hover {
+  border-color: var(--color-brand);
+  background: color-mix(in oklab, var(--color-brand) 6%, transparent);
+}
+
+.nt-cfg-drop strong {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.nt-cfg-drop small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  color: var(--cfg-muted);
+}
+
+.nt-cfg-drop-preview {
+  display: grid;
+  flex-shrink: 0;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #111;
+}
+
+.nt-cfg-drop-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.25rem;
+}
+
+.nt-cfg-remove {
+  min-height: 2.75rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--cfg-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cfg-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.nt-cfg-remove:hover {
+  color: var(--color-white);
+  border-color: #ff6b62;
+}
+
+/* Vizual karta */
+.nt-cfg-card {
+  overflow: hidden;
+  border: 1px solid var(--cfg-line);
+  border-radius: 1.75rem;
+  background: var(--color-ink);
+}
+
+.nt-cfg-visual {
+  aspect-ratio: 1200 / 560;
+  background: #dfeaf2;
+}
+
+.nt-cfg-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.nt-cfg-station.is-swapping {
+  animation: nt-cfg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes nt-cfg-in {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+
+.nt-cfg-card-body {
+  padding: 1.1rem 1.25rem 1.35rem;
+}
+
+@media (min-width: 40rem) {
+  .nt-cfg-card-body {
+    padding: 1.25rem 1.6rem 1.6rem;
+  }
+}
+
+.nt-cfg-summary {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.nt-cfg-order {
+  display: inline-flex;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-brand);
+  color: #111;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 22px -14px rgb(0 0 0 / 0.55);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.nt-cfg-order:hover {
+  background: var(--color-brand-deep);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nt-cfg-order:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.nt-cfg-note {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--color-white) 48%, transparent);
+}
+
+/* O'xshash bajarilgan ish */
+.nt-cfg-similar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+  padding: 0.6rem;
+  border: 1px solid var(--cfg-line);
+  border-radius: 1.1rem;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.nt-cfg-similar:hover {
+  border-color: color-mix(in oklab, var(--color-brand) 60%, transparent);
+  background: var(--cfg-soft);
+}
+
+.nt-cfg-similar img {
+  width: 6rem;
+  height: 4.5rem;
+  flex-shrink: 0;
+  border-radius: 0.7rem;
+  object-fit: cover;
+  background: var(--cfg-soft);
+}
+
+.nt-cfg-similar small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--cfg-muted);
+}
+
+.nt-cfg-similar strong {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt-cfg-station.is-swapping {
+    animation: none;
+  }
+}

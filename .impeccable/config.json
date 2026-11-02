@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "assets/nanotex-theme.css"
+        ],
+        "createdAt": "2026-11-02T10:50:05.267Z",
+        "reason": "user requested: footer slogan text must shimmer as an animation (Sifat • Ishonch • Samaradorlik)"
+      }
+    ]
+  }
+}

@@ -94,6 +94,23 @@
   }
 }
 
+/* Menyu bandlari bir qatorda qoladi */
+header nav a {
+  white-space: nowrap;
+}
+
+/* 1280–1535px: yetti band sig'ishi uchun oraliqlar biroz qisqaroq */
+@media (min-width: 80rem) and (max-width: 95.99rem) {
+  header nav ul {
+    gap: 0.125rem;
+  }
+
+  header nav a {
+    padding-inline: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
 /* Faol til: sariq fon ustida doim to'q matn */
 html.light .nt-lang-on {
   --color-ink: #111;
@@ -131,6 +148,258 @@ html.light .text-brand {
   color: var(--nt-brand-text);
 }
 
+/* "Biz haqimizda" ikonkalari: kursor olib borilganda sariq fon, sakrash va halqa to'lqini */
+.nt-concept-icon {
+  position: relative;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.nt-concept-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-brand);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .nt-concept-icon:hover,
+  html.light .nt-concept-icon:hover {
+    background-color: var(--color-brand);
+    color: #111;
+    box-shadow: 0 12px 28px -10px rgb(255 196 0 / 0.7);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .nt-concept-icon:hover {
+    transform: translateY(-3px) scale(1.1) rotate(-4deg);
+  }
+
+  .nt-concept-icon:hover svg {
+    animation: nt-icon-wiggle 0.6s ease-in-out;
+  }
+
+  .nt-concept-icon:hover::after {
+    animation: nt-icon-ring 0.7s ease-out;
+  }
+}
+
+@keyframes nt-icon-wiggle {
+  25% {
+    transform: rotate(-12deg) scale(1.15);
+  }
+
+  60% {
+    transform: rotate(9deg) scale(1.15);
+  }
+}
+
+@keyframes nt-icon-ring {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* Hududlar kartasi va tugmalari: border bo'ylab aylanuvchi yaltiroq nur */
+@property --nt-glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.nt-glow {
+  position: relative;
+}
+
+.nt-glow::before,
+.nt-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--nt-glow-angle),
+    transparent 0 8%,
+    var(--color-brand) 22%,
+    #fff3b8 28%,
+    var(--color-brand) 34%,
+    transparent 48% 58%,
+    var(--color-brand) 72%,
+    #fff3b8 78%,
+    var(--color-brand) 84%,
+    transparent 98%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+  animation: nt-glow-spin 5s linear infinite;
+}
+
+.nt-glow::after {
+  filter: blur(7px);
+  opacity: 0.8;
+}
+
+/* Hudud nomlari faqat kursor olib borilganda yonadi */
+.nt-glow-hover {
+  cursor: default;
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.nt-glow-hover::before,
+.nt-glow-hover::after {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  animation-duration: 2.4s;
+}
+
+@media (hover: hover) {
+  .nt-glow-hover:hover {
+    background-color: rgb(255 196 0 / 0.14);
+    transform: translateY(-2px);
+  }
+
+  .nt-glow-hover:hover::before {
+    opacity: 1;
+  }
+
+  .nt-glow-hover:hover::after {
+    opacity: 0.8;
+  }
+}
+
+/* Loyihalarimiz kartasi: nur rasm ustida ko'rinadi, kursor olib borilganda kuchayadi */
+.nt-works-card::before,
+.nt-works-card::after {
+  inset: 0;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.nt-works-card::after {
+  opacity: 0.55;
+}
+
+@media (hover: hover) {
+  .nt-works-card:hover::after {
+    opacity: 1;
+  }
+}
+
+@keyframes nt-glow-spin {
+  to {
+    --nt-glow-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt-glow::before,
+  .nt-glow::after {
+    animation: none;
+  }
+
+  .nt-glow-hover:hover {
+    transform: none;
+  }
+}
+
+/* Birinchi bo'lim: balandlik kontentga teng, katta ekranda ortiqcha bo'sh joy qolmaydi */
+@media (min-width: 64rem) {
+  #bosh-sahifa {
+    min-height: 0;
+    padding-top: 7rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+/* Loyihalarimiz karuseli: kichik rasmlar bir qatorli lenta */
+.nt-works-thumbs {
+  position: relative;
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-top: 0.125rem;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.nt-works-thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.nt-works-thumbs > button {
+  flex: 0 0 5.5rem;
+  cursor: inherit;
+}
+
+.nt-works-thumbs.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* Bo'limlar orasidagi bo'shliq: barcha bo'limlarda bir xil, ixcham ichki chegara */
+main > section[class*="lg:py-32"] {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+@media (min-width: 64rem) {
+  main > section[class*="lg:py-32"] {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* Mahsulot oynasi: galereya va tasniflar jadvali */
+.nt-modal-img {
+  min-height: 0;
+  max-height: 52dvh;
+}
+
+.nt-thumb {
+  border-color: rgb(0 0 0 / 0.1);
+  opacity: 0.7;
+}
+
+.nt-thumb:hover {
+  opacity: 1;
+}
+
+.nt-specs {
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+html.light .nt-specs,
+html.light .nt-spec {
+  border-color: rgb(0 0 0 / 0.1);
+}
+
+.nt-spec {
+  padding-block: 0.625rem;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
 /* "Trassalar uchun" kartasi: keng trassa rasmi kartaning yuqori qismida to'liq ko'rinadi
    va pastga qarab silliq so'nadi (shoxobcha kesilib qolmasligi uchun) */
 #yonalishlar li:nth-child(2) img {
@@ -139,4 +408,555 @@ html.light .text-brand {
   object-position: center top;
   -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent);
   mask-image: linear-gradient(to bottom, #000 72%, transparent);
+}
+
+/* Savol-javob: sariq bo'lim. Ichidagi "oq" matn va chiziqlar har ikki rejimda to'q rangga o'tadi */
+#savol-javob {
+  --color-white: #141414;
+  --color-ink: #111;
+  --nt-brand-text: #111;
+}
+
+#savol-javob .divide-y {
+  border-color: rgb(17 17 17 / 0.14);
+  background: rgb(255 255 255 / 0.32);
+}
+
+#savol-javob .divide-y > * + * {
+  border-color: rgb(17 17 17 / 0.12);
+}
+
+#savol-javob .divide-y button:hover {
+  background: rgb(255 255 255 / 0.3);
+}
+
+/* Ochiq savol belgisi: sariq fonda qora doira */
+#savol-javob [aria-expanded="true"] > span:last-child {
+  border-color: #111;
+  background: #111;
+  color: var(--color-brand);
+}
+
+/* Javob matni: chegarali alohida blok, o'qish oson */
+#savol-javob [role="region"] > div {
+  max-width: none;
+  margin: 0 1.25rem 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid rgb(17 17 17 / 0.16);
+  border-left: 3px solid #111;
+  border-radius: 0.9rem;
+  background: rgb(255 255 255 / 0.55);
+  color: #2a2a2a;
+}
+
+@media (min-width: 40rem) {
+  #savol-javob [role="region"] > div {
+    margin: 0 2rem 1.5rem;
+    padding: 1rem 1.35rem;
+  }
+}
+
+/* Tungi rejim: sariq o'rniga to'q oltin fon, matn och, urg'u sariq */
+html:not(.light) #savol-javob {
+  --color-white: #f4efe2;
+  --color-ink: #f4efe2;
+  --nt-brand-text: var(--color-brand);
+  background:
+    radial-gradient(ellipse at 15% 0%, rgb(255 196 0 / 0.22), transparent 55%),
+    radial-gradient(ellipse at 100% 100%, rgb(255 196 0 / 0.12), transparent 50%),
+    linear-gradient(160deg, #2b2208, #17130a 60%, #120f08);
+  color: #f4efe2;
+}
+
+html:not(.light) #savol-javob h2 {
+  color: #fff;
+}
+
+html:not(.light) #savol-javob .divide-y {
+  border-color: rgb(255 196 0 / 0.28);
+  background: rgb(255 255 255 / 0.04);
+}
+
+html:not(.light) #savol-javob .divide-y > * + * {
+  border-color: rgb(255 196 0 / 0.16);
+}
+
+html:not(.light) #savol-javob .divide-y button:hover {
+  background: rgb(255 196 0 / 0.08);
+}
+
+html:not(.light) #savol-javob [aria-expanded="true"] > span:last-child {
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+  color: #111;
+}
+
+html:not(.light) #savol-javob [role="region"] > div {
+  border-color: rgb(255 196 0 / 0.22);
+  border-left-color: var(--color-brand);
+  background: rgb(255 255 255 / 0.05);
+  color: rgb(244 239 226 / 0.85);
+}
+
+/* So'rov formasi: "Qiziqish yo'nalishi" ochiladigan ro'yxati */
+.nt-isel {
+  position: relative;
+}
+
+.nt-isel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nt-isel-ph {
+  color: color-mix(in oklab, var(--color-white) 40%, transparent);
+}
+
+.nt-isel-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nt-isel-chev {
+  flex-shrink: 0;
+  color: color-mix(in oklab, var(--color-white) 55%, transparent);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.nt-isel.is-open .nt-isel-btn {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-brand) 22%, transparent);
+}
+
+.nt-isel.is-open .nt-isel-chev {
+  transform: rotate(180deg);
+  color: var(--color-brand);
+}
+
+.nt-isel-list {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  max-height: 17rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  border: 1px solid color-mix(in oklab, var(--color-white) 14%, transparent);
+  border-radius: 1rem;
+  background: var(--color-ink-soft);
+  box-shadow: 0 18px 40px -16px rgb(0 0 0 / 0.45);
+  transform-origin: top center;
+  animation: nt-isel-open 0.18s ease-out;
+}
+
+.nt-isel-opt {
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.7rem;
+  color: var(--color-white);
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.15s ease;
+}
+
+.nt-isel-opt:hover,
+.nt-isel-opt:focus-visible {
+  background: color-mix(in oklab, var(--color-brand) 16%, transparent);
+}
+
+/* Tanlangan band: sariq, yaltirab paydo bo'ladi */
+.nt-isel-opt[aria-selected="true"] {
+  background: linear-gradient(110deg, var(--color-brand) 0 40%, #ffe27a 50%, var(--color-brand) 60% 100%) 0 0 / 260% 100%;
+  color: #111;
+  font-weight: 600;
+  animation: nt-isel-shine 1.1s ease-out;
+}
+
+/* Tanlangandan keyin maydon bir lahza sariq yaltiraydi */
+.nt-isel-btn:has(.nt-isel-value) {
+  animation: nt-isel-picked 0.9s ease-out;
+}
+
+@keyframes nt-isel-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scaleY(0.96);
+  }
+}
+
+@keyframes nt-isel-shine {
+  from {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes nt-isel-picked {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-brand) 55%, transparent);
+  }
+
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt-isel-list,
+  .nt-isel-opt[aria-selected="true"],
+  .nt-isel-btn:has(.nt-isel-value) {
+    animation: none;
+  }
+}
+
+/* Aloqa: chap va o'ng kartalar bir xil balandlikda */
+@media (min-width: 64rem) {
+  .nt-contact-left,
+  .nt-contact-right {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nt-contact-card {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .nt-contact-card > ul {
+    flex: 1;
+    grid-auto-rows: 1fr;
+  }
+
+  .nt-contact-right > * {
+    flex: 1;
+  }
+}
+
+/* Manzilimiz: xarita ustiga bosilganda Google Maps ochiladi */
+.nt-map-link {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 1rem;
+  cursor: pointer;
+}
+
+.nt-map-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  background: rgb(17 17 17 / 0.82);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.nt-map-hint svg {
+  color: var(--color-brand);
+}
+
+.nt-map-link:hover .nt-map-hint,
+.nt-map-link:focus-visible .nt-map-hint {
+  background: var(--color-brand);
+  color: #111;
+}
+
+.nt-map-link:hover .nt-map-hint svg,
+.nt-map-link:focus-visible .nt-map-hint svg {
+  color: #111;
+}
+
+.nt-map-link:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: -3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nt-map-link:hover .nt-map-hint {
+    transform: translateY(-2px);
+  }
+}
+
+/* Footer shiori: oval tugmalar, yozuv yaltirab turadi */
+.nt-slogan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.9rem 0.35rem 0.7rem;
+  border: 1px solid color-mix(in oklab, var(--color-brand) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-brand) 7%, transparent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: default;
+  transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nt-slogan-ico {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--nt-brand-text, var(--color-brand));
+  transition: color 0.25s ease, transform 0.35s ease;
+}
+
+.nt-slogan-text {
+  background: linear-gradient(100deg, var(--nt-brand-text, var(--color-brand)) 0 38%, #fff6c8 50%, var(--nt-brand-text, var(--color-brand)) 62% 100%) 0 0 / 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: nt-slogan-shine 3.2s linear infinite;
+  animation-delay: var(--nt-d, 0s);
+}
+
+html.light .nt-slogan-text {
+  background-image: linear-gradient(100deg, var(--nt-brand-text) 0 38%, #ffd84a 50%, var(--nt-brand-text) 62% 100%);
+}
+
+@media (hover: hover) {
+  .nt-slogan-pill:hover {
+    border-color: var(--color-brand);
+    background: var(--color-brand);
+    box-shadow: 0 8px 18px -12px rgb(0 0 0 / 0.5);
+  }
+
+  .nt-slogan-pill:hover .nt-slogan-ico {
+    color: #111;
+  }
+
+  .nt-slogan-pill:hover .nt-slogan-text {
+    background-image: none;
+    color: #111;
+    animation: none;
+  }
+}
+
+@keyframes nt-slogan-shine {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .nt-slogan-pill:hover {
+    transform: translateY(-2px);
+  }
+
+  .nt-slogan-pill:hover .nt-slogan-ico {
+    transform: scale(1.15) rotate(-8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt-slogan-text {
+    animation: none;
+  }
+}
+
+/* Footer shiori: tugmalar ustma-ust, bir xil kenglikda */
+.nt-slogan {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.nt-slogan-pill {
+  width: 100%;
+}
+
+/* Footer kontaktlari: belgili oval tugmalar, ustma-ust */
+.nt-foot-contacts {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.nt-foot-pill {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1.1rem 0.45rem 0.55rem;
+  border: 1px solid color-mix(in oklab, var(--color-brand) 32%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-brand) 6%, transparent);
+  color: color-mix(in oklab, var(--color-white) 78%, transparent);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nt-foot-ico {
+  display: block;
+  width: 1.85rem;
+  height: 1.85rem;
+  flex-shrink: 0;
+  padding: 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-brand) 16%, transparent);
+  color: var(--nt-brand-text, var(--color-brand));
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.35s ease;
+}
+
+.nt-foot-pill:hover,
+.nt-foot-pill:focus-visible {
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+  color: #111;
+  box-shadow: 0 8px 18px -12px rgb(0 0 0 / 0.5);
+}
+
+.nt-foot-pill:hover .nt-foot-ico,
+.nt-foot-pill:focus-visible .nt-foot-ico {
+  background: #111;
+  color: var(--color-brand);
+}
+
+.nt-foot-pill:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nt-foot-pill:hover {
+    transform: translateX(4px);
+  }
+
+  .nt-foot-pill:hover .nt-foot-ico {
+    transform: rotate(-10deg) scale(1.08);
+  }
+}
+
+/* Footer shiori: yonma-yon, chegarasiz, faqat yaltirab porlaydi */
+.nt-slogan {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1.1rem;
+}
+
+.nt-slogan-pill,
+.nt-slogan-pill:hover {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+  gap: 0.4rem;
+}
+
+.nt-slogan-ico {
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--color-brand) 70%, transparent));
+  animation: nt-slogan-glow 3.2s ease-in-out infinite;
+  animation-delay: var(--nt-d, 0s);
+}
+
+.nt-slogan-text {
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-brand) 55%, transparent));
+}
+
+/* Hover: sariq bo'lmaydi, porlash kuchayadi */
+@media (hover: hover) {
+  .nt-slogan-pill:hover .nt-slogan-ico {
+    color: var(--nt-brand-text, var(--color-brand));
+  }
+
+  .nt-slogan-pill:hover .nt-slogan-text {
+    background-image: linear-gradient(100deg, var(--nt-brand-text, var(--color-brand)) 0 38%, #fff6c8 50%, var(--nt-brand-text, var(--color-brand)) 62% 100%);
+    color: transparent;
+    animation: nt-slogan-shine 1.4s linear infinite;
+    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-brand) 85%, transparent));
+  }
+}
+
+@keyframes nt-slogan-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px color-mix(in oklab, var(--color-brand) 40%, transparent));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 8px color-mix(in oklab, var(--color-brand) 90%, transparent));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt-slogan-ico {
+    animation: none;
+  }
+}
+
+/* Footer: uchta ustun bir xil kenglikda */
+@media (min-width: 64rem) {
+  footer > div:first-child {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Aloqa: telefon raqami kartaning ichida bir qatorda turadi */
+#aloqa a[href^="tel:"] {
+  padding-inline: 0.5rem;
+}
+#aloqa a[href^="tel:"] > span:last-child {
+  white-space: nowrap;
+  font-size: clamp(0.6875rem, 3.4vw, 0.875rem);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Footer, telefon va planshet: "Sahifa bo'limlari" va "Aloqa" yonma-yon */
+@media (max-width: 63.99rem) {
+  footer > div:first-child {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    column-gap: 1rem;
+  }
+
+  footer > div:first-child > div:first-child {
+    grid-column: 1 / -1;
+  }
+
+  footer .nt-foot-contacts {
+    display: flex;
+  }
+
+  footer .nt-foot-pill {
+    min-height: 2.5rem;
+    gap: 0.45rem;
+    padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+    font-size: clamp(0.75rem, 3.4vw, 0.9375rem);
+  }
+
+  footer .nt-foot-ico {
+    width: 1.6rem;
+    height: 1.6rem;
+    padding: 0.35rem;
+  }
 }
