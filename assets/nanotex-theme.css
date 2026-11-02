@@ -131,6 +131,221 @@ html.light .text-brand {
   color: var(--nt-brand-text);
 }
 
+/* "Biz haqimizda" ikonkalari: kursor olib borilganda sariq fon, sakrash va halqa to'lqini */
+.nt-concept-icon {
+  position: relative;
+  transition:
+    transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.nt-concept-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--color-brand);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .nt-concept-icon:hover,
+  html.light .nt-concept-icon:hover {
+    background-color: var(--color-brand);
+    color: #111;
+    box-shadow: 0 12px 28px -10px rgb(255 196 0 / 0.7);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .nt-concept-icon:hover {
+    transform: translateY(-3px) scale(1.1) rotate(-4deg);
+  }
+
+  .nt-concept-icon:hover svg {
+    animation: nt-icon-wiggle 0.6s ease-in-out;
+  }
+
+  .nt-concept-icon:hover::after {
+    animation: nt-icon-ring 0.7s ease-out;
+  }
+}
+
+@keyframes nt-icon-wiggle {
+  25% {
+    transform: rotate(-12deg) scale(1.15);
+  }
+
+  60% {
+    transform: rotate(9deg) scale(1.15);
+  }
+}
+
+@keyframes nt-icon-ring {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* Hududlar kartasi va tugmalari: border bo'ylab aylanuvchi yaltiroq nur */
+@property --nt-glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.nt-glow {
+  position: relative;
+}
+
+.nt-glow::before,
+.nt-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--nt-glow-angle),
+    transparent 0 8%,
+    var(--color-brand) 22%,
+    #fff3b8 28%,
+    var(--color-brand) 34%,
+    transparent 48% 58%,
+    var(--color-brand) 72%,
+    #fff3b8 78%,
+    var(--color-brand) 84%,
+    transparent 98%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+  animation: nt-glow-spin 5s linear infinite;
+}
+
+.nt-glow::after {
+  filter: blur(7px);
+  opacity: 0.8;
+}
+
+/* Hudud nomlari faqat kursor olib borilganda yonadi */
+.nt-glow-hover {
+  cursor: default;
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.nt-glow-hover::before,
+.nt-glow-hover::after {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  animation-duration: 2.4s;
+}
+
+@media (hover: hover) {
+  .nt-glow-hover:hover {
+    background-color: rgb(255 196 0 / 0.14);
+    transform: translateY(-2px);
+  }
+
+  .nt-glow-hover:hover::before {
+    opacity: 1;
+  }
+
+  .nt-glow-hover:hover::after {
+    opacity: 0.8;
+  }
+}
+
+@keyframes nt-glow-spin {
+  to {
+    --nt-glow-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt-glow::before,
+  .nt-glow::after {
+    animation: none;
+  }
+
+  .nt-glow-hover:hover {
+    transform: none;
+  }
+}
+
+/* Birinchi bo'lim: balandlik kontentga teng, katta ekranda ortiqcha bo'sh joy qolmaydi */
+@media (min-width: 64rem) {
+  #bosh-sahifa {
+    min-height: 0;
+    padding-top: 7rem;
+    padding-bottom: 3.5rem;
+  }
+}
+
+/* Loyihalarimiz va katalog bo'limlari orasidagi bo'shliq */
+#ishlarimiz {
+  padding-bottom: 2.5rem;
+}
+
+#mahsulotlar {
+  padding-top: 2.5rem;
+}
+
+@media (min-width: 64rem) {
+  #ishlarimiz {
+    padding-bottom: 3.5rem;
+  }
+
+  #mahsulotlar {
+    padding-top: 3.5rem;
+  }
+}
+
+/* Mahsulot oynasi: galereya va tasniflar jadvali */
+.nt-modal-img {
+  min-height: 0;
+  max-height: 52dvh;
+}
+
+.nt-thumb {
+  border-color: rgb(0 0 0 / 0.1);
+  opacity: 0.7;
+}
+
+.nt-thumb:hover {
+  opacity: 1;
+}
+
+.nt-specs {
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+html.light .nt-specs,
+html.light .nt-spec {
+  border-color: rgb(0 0 0 / 0.1);
+}
+
+.nt-spec {
+  padding-block: 0.625rem;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
 /* "Trassalar uchun" kartasi: keng trassa rasmi kartaning yuqori qismida to'liq ko'rinadi
    va pastga qarab silliq so'nadi (shoxobcha kesilib qolmasligi uchun) */
 #yonalishlar li:nth-child(2) img {
