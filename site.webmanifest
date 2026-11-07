@@ -1,0 +1,15 @@
+{
+  "name": "NANOTEX — ko‘chma yoqilg‘i quyish shoxobchalari",
+  "short_name": "NANOTEX",
+  "description": "50 tonnagacha ko‘chma AYoQSh ishlab chiqarish. Мобильные АЗС. Mobile fuel stations.",
+  "lang": "uz",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/brand/nanotex-logo-original.jpg", "sizes": "640x640", "type": "image/jpeg" }
+  ]
+}

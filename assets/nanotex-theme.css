@@ -333,6 +333,28 @@ html.light .text-brand {
   }
 }
 
+/* Bosh sahifa sarlavhasi: ikki yozuv bir joyda ustma-ust turadi va 5 soniyada almashadi.
+   Balandlik eng uzun yozuvga teng, shuning uchun pastdagi kontent sakramaydi */
+.nt-hero-rot {
+  display: grid;
+}
+
+.nt-hero-rot > .nt-hero-line {
+  display: block;
+  grid-area: 1 / 1;
+}
+
+/* Mahsulotlar: lazer ishlari kartasida fotosurat butun maydonni egallaydi */
+.nt-laser-thumb img {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .nt-laser-thumb:hover img {
+    transform: scale(1.05);
+  }
+}
+
 /* Loyihalarimiz karuseli: kichik rasmlar bir qatorli lenta */
 .nt-works-thumbs {
   position: relative;

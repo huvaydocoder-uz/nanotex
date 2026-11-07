@@ -1,0 +1,88 @@
+/* Pastga tushganda chiqadigan sariq tugmalar: chapda telefon, o'ngda yuqoriga */
+.nt-float {
+  position: fixed;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0;
+  border-radius: 9999px;
+  background: #ffc400;
+  color: #111;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 8px 24px -8px rgb(255 196 0 / 0.6);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1rem) scale(0.9);
+  transition:
+    opacity 0.25s ease-out,
+    visibility 0.25s,
+    transform 0.25s ease-out,
+    background-color 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.nt-float--call { left: calc(1.25rem + env(safe-area-inset-left, 0px)); }
+.nt-float--top { right: calc(1.25rem + env(safe-area-inset-right, 0px)); }
+
+.nt-float.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+.nt-float.is-visible:hover {
+  background: #ffd033;
+  box-shadow: 0 12px 32px -8px rgb(255 196 0 / 0.75);
+  transform: translateY(-3px) scale(1);
+}
+.nt-float.is-visible:active { transform: scale(0.96); }
+.nt-float:focus-visible {
+  outline: 2px solid #ffc400;
+  outline-offset: 3px;
+}
+
+.nt-float svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: transform 0.2s ease-out;
+}
+
+/* Telefon tugmasi atrofida to'lqin */
+.nt-float--call::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #ffc400;
+  z-index: -1;
+  opacity: 0;
+}
+.nt-float--call.is-visible::before { animation: nt-float-pulse 2.4s ease-out infinite; }
+.nt-float--call:hover svg { animation: nt-float-ring 0.9s ease-in-out infinite; }
+.nt-float--top:hover svg { transform: translateY(-3px); }
+
+@keyframes nt-float-pulse {
+  0% { opacity: 0.55; transform: scale(1); }
+  70%, 100% { opacity: 0; transform: scale(1.6); }
+}
+@keyframes nt-float-ring {
+  0%, 100% { transform: rotate(0); }
+  10%, 30% { transform: rotate(-16deg); }
+  20%, 40% { transform: rotate(16deg); }
+  50% { transform: rotate(0); }
+}
+
+@media (max-width: 639px) {
+  .nt-float { width: 3.125rem; height: 3.125rem; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
+  .nt-float--call { left: calc(1rem + env(safe-area-inset-left, 0px)); }
+  .nt-float--top { right: calc(1rem + env(safe-area-inset-right, 0px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nt-float, .nt-float svg { transition: opacity 0.2s, visibility 0.2s; }
+  .nt-float--call.is-visible::before,
+  .nt-float--call:hover svg { animation: none; }
+}

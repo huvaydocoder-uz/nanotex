@@ -3,7 +3,6 @@
 // Vizual SVG'da chiziladi: o'lcham, sig'im, mahsulotlar soni, rang, brend, logotip va joylashuvga qarab o'zgaradi.
 
 const TELEGRAM = 'kuchmaAZS';
-const CAPACITIES = [5, 10, 15, 20, 30, 40, 50];
 const FUELS = ['AI-92', 'AI-95', 'DT', 'AI-91', 'AI-80'];
 const NOZZLE_COLORS = ['#e53935', '#1e88e5', '#2e7d32', '#f9a825', '#8d6e63'];
 const COLORS = [
@@ -14,7 +13,42 @@ const COLORS = [
   { hex: '#f57c00', key: 'orange' },
   { hex: '#23272b', key: 'black' },
 ];
+// Old panel (yonilg'i belgilari va brend turgan yuz qismi) ranglari
+const PANELS = [
+  { hex: '#30353b', key: 'black' },
+  { hex: '#f4f4f2', key: 'white' },
+  { hex: '#8a9097', key: 'grey' },
+  { hex: '#1f3a5f', key: 'navy' },
+  { hex: '#5a3e2b', key: 'brown' },
+];
 const LOGO_MAX_BYTES = 3 * 1024 * 1024;
+// Operator xonasi o'lchami, metrda: uzunligi 0–3,5 m, eni 0–2,5 m
+const ROOM_MIN = 0;
+const ROOM_MAX = { roomLength: 3.5, roomWidth: 2.5 };
+// Vizualizatsiyada juda kichik qiymatda shakl buzilmasligi uchun eng kichik chizma o'lchami
+const ROOM_DRAW_MIN = 1;
+// Sig'im, tonnada: 50 tonnadan katta shoxobchalar ishlab chiqarilmaydi
+const CAP_MIN = 1;
+const CAP_MAX = 50;
+
+// Ruscha ko'plik: 1 тонна, 2 тонны, 5 тонн
+const ruPlural = (n, one, few, many) => {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+};
+
+// Telefon: faqat raqamlar; 9 xonali mahalliy raqamga +998 qo'shiladi
+function normalizePhone(v) {
+  let d = String(v).replace(/\D/g, '');
+  if (d.length === 9) d = '998' + d;
+  if (d.length < 9 || d.length > 15) return null;
+  if (d.length === 12 && d.startsWith('998')) {
+    return `+998 ${d.slice(3, 5)} ${d.slice(5, 8)} ${d.slice(8, 10)} ${d.slice(10)}`;
+  }
+  return '+' + d;
+}
 
 // Bajarilgan ishlardan eng yaqin namuna (images/work-XX)
 function similarWork(cap, products) {
@@ -34,7 +68,18 @@ const I18N = {
     room: 'Operator xonasi o‘lchamlari',
     roomLength: 'Uzunligi, m',
     roomWidth: 'Eni, m',
+    roomHint: 'Uzunligi 0 dan 3,5 m gacha, eni 0 dan 2,5 m gacha',
+    roomMax: { roomLength: 'Uzunligi ko‘pi bilan 3,5 m bo‘lishi mumkin.', roomWidth: 'Eni ko‘pi bilan 2,5 m bo‘lishi mumkin.' },
     capacity: 'Shoxobcha sig‘imi',
+    capacityCustom: 'Sig‘imni kiriting',
+    capacityUnit: 'tonna',
+    capacityHint: 'Sig‘im tonnalarda kiritiladi, eng ko‘pi 50 tonna. Bundan katta sig‘imli shoxobchalar ishlab chiqarilmaydi.',
+    capacityMax: 'Eng katta sig‘im 50 tonna, qiymat 50 tonnaga tushirildi.',
+    phone: 'Telefon raqamingiz',
+    phonePh: '+998 90 123 45 67',
+    phoneHint: 'Mutaxassisimiz siz bilan shu raqam orqali bog‘lanadi.',
+    phoneBad: 'Telefon raqamini to‘liq kiriting, masalan: +998 90 123 45 67',
+    oPhone: 'Telefon',
     tonnes: 't',
     tonnesLong: n => `${n} tonna`,
     products: 'Necha xil mahsulotga mo‘ljallangan',
@@ -42,6 +87,9 @@ const I18N = {
     color: 'Asosiy rang',
     customColor: 'Boshqa rang',
     colorNames: { yellow: 'Sariq', red: 'Qizil', blue: 'Ko‘k', green: 'Yashil', orange: 'To‘q sariq', black: 'Qora' },
+    panel: 'Old panel rangi',
+    panelNames: { black: 'Qora', white: 'Oq', grey: 'Kulrang', navy: 'To‘q ko‘k', brown: 'Jigarrang' },
+    oPanel: 'Old panel rangi',
     brand: 'Brend nomi',
     brandPh: 'Masalan: NUR OIL',
     brandEmpty: 'BRENDINGIZ',
@@ -80,14 +128,28 @@ const I18N = {
     room: 'Размеры помещения оператора',
     roomLength: 'Длина, м',
     roomWidth: 'Ширина, м',
+    roomHint: 'Длина от 0 до 3,5 м, ширина от 0 до 2,5 м',
+    roomMax: { roomLength: 'Длина — не более 3,5 м.', roomWidth: 'Ширина — не более 2,5 м.' },
     capacity: 'Ёмкость станции',
+    capacityCustom: 'Укажите ёмкость',
+    capacityUnit: 'тонн',
+    capacityHint: 'Ёмкость указывается в тоннах, максимум 50 тонн. Станции большей ёмкости не производятся.',
+    capacityMax: 'Максимальная ёмкость — 50 тонн, значение уменьшено до 50.',
+    phone: 'Ваш номер телефона',
+    phonePh: '+998 90 123 45 67',
+    phoneHint: 'Наш специалист свяжется с вами по этому номеру.',
+    phoneBad: 'Введите номер полностью, например: +998 90 123 45 67',
+    oPhone: 'Телефон',
     tonnes: 'т',
-    tonnesLong: n => `${n} тонн`,
+    tonnesLong: n => `${n} ${ruPlural(n, 'тонна', 'тонны', 'тонн')}`,
     products: 'Сколько видов топлива',
     productsLong: n => `${n} ${n === 1 ? 'вид' : n < 5 ? 'вида' : 'видов'} топлива`,
     color: 'Основной цвет',
     customColor: 'Другой цвет',
     colorNames: { yellow: 'Жёлтый', red: 'Красный', blue: 'Синий', green: 'Зелёный', orange: 'Оранжевый', black: 'Чёрный' },
+    panel: 'Цвет фронтальной панели',
+    panelNames: { black: 'Чёрный', white: 'Белый', grey: 'Серый', navy: 'Тёмно-синий', brown: 'Коричневый' },
+    oPanel: 'Цвет фронтальной панели',
     brand: 'Название бренда',
     brandPh: 'Например: NUR OIL',
     brandEmpty: 'ВАШ БРЕНД',
@@ -126,14 +188,28 @@ const I18N = {
     room: 'Operator room size',
     roomLength: 'Length, m',
     roomWidth: 'Width, m',
+    roomHint: 'Length from 0 to 3.5 m, width from 0 to 2.5 m',
+    roomMax: { roomLength: 'The length can be at most 3.5 m.', roomWidth: 'The width can be at most 2.5 m.' },
     capacity: 'Station capacity',
+    capacityCustom: 'Enter the capacity',
+    capacityUnit: 'tonnes',
+    capacityHint: 'Capacity is entered in tonnes, up to 50 tonnes. Larger stations are not manufactured.',
+    capacityMax: 'The maximum capacity is 50 tonnes, so the value was set to 50.',
+    phone: 'Your phone number',
+    phonePh: '+998 90 123 45 67',
+    phoneHint: 'Our specialist will contact you on this number.',
+    phoneBad: 'Enter the full number, for example: +998 90 123 45 67',
+    oPhone: 'Phone',
     tonnes: 't',
-    tonnesLong: n => `${n} tonnes`,
+    tonnesLong: n => `${n} tonne${n === 1 ? '' : 's'}`,
     products: 'Number of fuel types',
     productsLong: n => `${n} fuel type${n === 1 ? '' : 's'}`,
     color: 'Main colour',
     customColor: 'Other colour',
     colorNames: { yellow: 'Yellow', red: 'Red', blue: 'Blue', green: 'Green', orange: 'Orange', black: 'Black' },
+    panel: 'Front panel colour',
+    panelNames: { black: 'Black', white: 'White', grey: 'Grey', navy: 'Navy', brown: 'Brown' },
+    oPanel: 'Front panel colour',
     brand: 'Brand name',
     brandPh: 'For example: NUR OIL',
     brandEmpty: 'YOUR BRAND',
@@ -173,9 +249,11 @@ const state = {
   capacity: 40,
   products: 3,
   color: '#ffc400',
+  panel: '#30353b',
   brand: '',
   logo: null,
   location: 'highway',
+  phone: '',
 };
 
 // ---------- yordamchilar ----------
@@ -397,20 +475,30 @@ function roofSign(x, y, c, t, maxW) {
     <text x="${x + logo * 1.18}" y="${y}" font-family="Saira, 'Barlow', Inter, sans-serif" font-weight="800" font-size="${fs}" fill="${c}" stroke="#ffffff" stroke-width="${fs * 0.08}" paint-order="stroke fill" opacity="${state.brand.trim() ? 1 : 0.6}">${esc(name)}</text>`;
 }
 
-// Konteyner tipidagi shoxobcha (15 tonna va undan katta)
+// Korpus uzunligi (m) sig'imga qarab: oraliq qiymatlar chiziqli hisoblanadi
+const BODY_LEN = [[10, 5], [15, 6], [20, 7.4], [30, 9.4], [40, 11.6], [50, 13.4]];
+function bodyLength(cap) {
+  for (let i = 1; i < BODY_LEN.length; i++) {
+    const [c0, l0] = BODY_LEN[i - 1], [c1, l1] = BODY_LEN[i];
+    if (cap <= c1) return l0 + ((l1 - l0) * (Math.max(cap, c0) - c0)) / (c1 - c0);
+  }
+  return BODY_LEN[BODY_LEN.length - 1][1];
+}
+
+// Konteyner tipidagi shoxobcha (10 tonnadan katta)
 function containerStation(t) {
   const c = state.color, cDark = shade(c, -0.28), cLight = shade(c, 0.25);
-  const D = clamp(state.roomWidth, 1.5, 6) * S * 0.55;
+  const D = clamp(state.roomWidth, ROOM_DRAW_MIN, ROOM_MAX.roomWidth) * S * 0.55;
   const dv = { x: D * 0.7, y: -D * 0.42 };
   const Hb = 3.1 * S, roofT = 0.42 * S;
   const n = state.products;
   const Cz = (n <= 2 ? 2.8 : 3.8) * S;
-  const Lr = clamp(state.roomLength, 1.5, 6) * S;
-  const bodyM = { 15: 6, 20: 7.4, 30: 9.4, 40: 11.6, 50: 13.4 }[state.capacity] || 9;
+  const Lr = clamp(state.roomLength, ROOM_DRAW_MIN, ROOM_MAX.roomLength) * S;
+  const bodyM = bodyLength(state.capacity);
   const Lb = bodyM * S;
   const L = Cz + Lr + Lb;
   const xr = Cz, xb = Cz + Lr;
-  const wall = '#eceeee', wallSide = '#c9cdd0', panel = '#30353b';
+  const wall = '#eceeee', wallSide = '#c9cdd0', panel = state.panel;
 
   let out = '';
   // maydon va soya
@@ -446,7 +534,7 @@ function containerStation(t) {
   const plateX = xb + 1.5 * S;
   out += fuelPlates(plateX, -Hb + pad + 0.3 * S, n, c, Hb - pad * 2 - 0.55 * S);
   const bx = plateX + 1.35 * S, bw = xb + Lb - pad - 0.4 * S - bx;
-  out += brandBlock(bx, -Hb * 0.72, bw, Hb * 0.36, c, '#ffffff', t);
+  out += brandBlock(bx, -Hb * 0.72, bw, Hb * 0.36, c, onColor(panel), t);
   out += `<path d="M${bx} ${-Hb * 0.26} H${xb + Lb - pad - 0.4 * S}" stroke="${c}" stroke-width="3" opacity="0.8"/>`;
   // diagonal aksent (xona va korpus chegarasida)
   out += `<polygon points="${xb - 0.55 * S},${-Hb} ${xb + 0.35 * S},${-Hb} ${xb + 1.05 * S},0 ${xb + 0.15 * S},0" fill="${c}"/>
@@ -469,12 +557,13 @@ function containerStation(t) {
 // Kichik shoxobcha: 5–10 tonna, korxonalar uchun
 function miniStation(t) {
   const c = state.color, cDark = shade(c, -0.28);
-  const D = clamp(state.roomWidth, 1.5, 6) * S * 0.45;
+  const D = clamp(state.roomWidth, ROOM_DRAW_MIN, ROOM_MAX.roomWidth) * S * 0.45;
   const dv = { x: D * 0.7, y: -D * 0.42 };
   const Hk = 2.7 * S, K = 2.3 * S;
-  const Lr = clamp(state.roomLength, 1.5, 4) * S;
-  const tankL = (state.capacity === 5 ? 3.8 : 5.4) * S;
-  const tankD = (state.capacity === 5 ? 1.75 : 2.25) * S;
+  const Lr = clamp(state.roomLength, ROOM_DRAW_MIN, ROOM_MAX.roomLength) * S;
+  // Rezervuar: 5 t da 3,8 × 1,75 m, 10 t da 5,4 × 2,25 m, oraliqlar chiziqli
+  const tankL = Math.max(2.6, 3.8 + (state.capacity - 5) * 0.32) * S;
+  const tankD = Math.max(1.35, 1.75 + (state.capacity - 5) * 0.1) * S;
   const n = state.products;
   const tx = K + Lr + 0.5 * S;
   let out = '';
@@ -497,8 +586,9 @@ function miniStation(t) {
   out += `<path d="M${0.22 * S} 0 V${-Hk + 0.7 * S} Q${0.22 * S} ${-Hk + 0.22 * S} ${0.7 * S} ${-Hk + 0.22 * S} H${K}" stroke="#f4f4f2" stroke-width="${0.32 * S}" fill="none"/>
     <path d="M${0.06 * S} 0 V${-Hk + 0.7 * S} Q${0.06 * S} ${-Hk + 0.06 * S} ${0.7 * S} ${-Hk + 0.06 * S} H${K}" stroke="#d9dbdc" stroke-width="2" fill="none"/>`;
   // operator kabinasi
-  out += prism(K, -Hk, Lr, Hk, dv, '#62676d', '#e9ebec', '#4c5156');
-  out += `<rect x="${K + 0.16 * S}" y="${-Hk + 0.35 * S}" width="${0.85 * S}" height="${Hk - 0.35 * S}" fill="#575c62" stroke="#3f4448" stroke-width="2"/>
+  const front = state.panel;
+  out += prism(K, -Hk, Lr, Hk, dv, front, '#e9ebec', shade(front, -0.2));
+  out += `<rect x="${K + 0.16 * S}" y="${-Hk + 0.35 * S}" width="${0.85 * S}" height="${Hk - 0.35 * S}" fill="${shade(front, -0.12)}" stroke="${shade(front, -0.35)}" stroke-width="2"/>
     <rect x="${K + Lr - 0.95 * S}" y="${-Hk + 0.5 * S}" width="${0.75 * S}" height="${0.5 * S}" fill="url(#cfgGlass)"/>
     <rect x="${K}" y="${-Hk}" width="${Lr}" height="${0.22 * S}" fill="${c}"/>`;
   out += fuelPlates(K + Lr - 1.15 * S, -Hk + 1.2 * S, n, c, Hk - 1.45 * S);
@@ -594,14 +684,24 @@ function render(section) {
         <fieldset class="nt-cfg-field">
           <legend>${t.room}</legend>
           <div class="nt-cfg-dims">
-            <label><span>${t.roomLength}</span><input type="number" name="roomLength" inputmode="decimal" min="1.5" max="6" step="0.1" value="${state.roomLength}"></label>
+            <label><span>${t.roomLength}</span><input type="number" name="roomLength" inputmode="decimal" min="${ROOM_MIN}" max="${ROOM_MAX.roomLength}" step="0.1" value="${state.roomLength}"></label>
             <span class="nt-cfg-times" aria-hidden="true">×</span>
-            <label><span>${t.roomWidth}</span><input type="number" name="roomWidth" inputmode="decimal" min="1.5" max="6" step="0.1" value="${state.roomWidth}"></label>
+            <label><span>${t.roomWidth}</span><input type="number" name="roomWidth" inputmode="decimal" min="${ROOM_MIN}" max="${ROOM_MAX.roomWidth}" step="0.1" value="${state.roomWidth}"></label>
           </div>
+          <p class="nt-cfg-hint">${t.roomHint}</p>
+          <p class="nt-cfg-error" data-room-error role="alert"></p>
         </fieldset>
         <fieldset class="nt-cfg-field">
           <legend>${t.capacity}</legend>
-          <div class="nt-cfg-chips">${CAPACITIES.map(v => chip('capacity', v, `${v} ${t.tonnes}`, state.capacity === v)).join('')}</div>
+          <label class="nt-cfg-cap">
+            <span>${t.capacityCustom}</span>
+            <span class="nt-cfg-unit">
+              <input type="number" name="capacity" inputmode="numeric" min="${CAP_MIN}" max="${CAP_MAX}" step="1" value="${state.capacity}" aria-describedby="cfg-cap-hint">
+              <em aria-hidden="true">${t.capacityUnit}</em>
+            </span>
+          </label>
+          <p class="nt-cfg-hint" id="cfg-cap-hint">${t.capacityHint}</p>
+          <p class="nt-cfg-error" data-cap-error role="alert"></p>
         </fieldset>
         <fieldset class="nt-cfg-field">
           <legend>${t.products}</legend>
@@ -613,6 +713,13 @@ function render(section) {
           <div class="nt-cfg-swatches">
             ${COLORS.map(cl => `<button type="button" class="nt-cfg-swatch" data-color="${cl.hex}" style="--sw:${cl.hex}" aria-pressed="${state.color === cl.hex}" aria-label="${t.colorNames[cl.key]}" title="${t.colorNames[cl.key]}"></button>`).join('')}
             <label class="nt-cfg-swatch nt-cfg-custom" title="${t.customColor}"><span class="sr-only">${t.customColor}</span><input type="color" name="customColor" value="${state.color}"></label>
+          </div>
+        </fieldset>
+        <fieldset class="nt-cfg-field">
+          <legend>${t.panel}</legend>
+          <div class="nt-cfg-swatches">
+            ${PANELS.map(p => `<button type="button" class="nt-cfg-swatch" data-panel="${p.hex}" style="--sw:${p.hex}" aria-pressed="${state.panel === p.hex}" aria-label="${t.panelNames[p.key]}" title="${t.panelNames[p.key]}"></button>`).join('')}
+            <label class="nt-cfg-swatch nt-cfg-custom" title="${t.customColor}"><span class="sr-only">${t.panel}: ${t.customColor}</span><input type="color" name="customPanel" value="${state.panel}"></label>
           </div>
         </fieldset>
         <fieldset class="nt-cfg-field">
@@ -643,6 +750,12 @@ function render(section) {
           <div class="nt-cfg-visual" data-visual></div>
           <div class="nt-cfg-card-body">
             <p class="nt-cfg-summary" data-summary aria-live="polite"></p>
+            <label class="nt-cfg-phone">
+              <span>${t.phone}</span>
+              <input type="tel" name="phone" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="${esc(t.phonePh)}" value="${esc(state.phone)}" aria-describedby="cfg-phone-hint" required>
+            </label>
+            <p class="nt-cfg-hint" id="cfg-phone-hint">${t.phoneHint}</p>
+            <p class="nt-cfg-error" data-phone-error role="alert"></p>
             <button type="button" class="nt-cfg-order" data-order>${icon('send', 'nt-cfg-ico')}<span>${t.order}</span></button>
             <p class="nt-cfg-note">${t.visualNote}</p>
           </div>
@@ -694,9 +807,9 @@ function setPressed(section, name, value) {
   section.querySelectorAll(`[data-${name}]`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset[name] === String(value))));
 }
 
-function colorName(t) {
-  const preset = COLORS.find(c => c.hex === state.color);
-  return preset ? `${t.colorNames[preset.key]} (${state.color.toUpperCase()})` : state.color.toUpperCase();
+function colorName(hex, presets, names) {
+  const preset = presets.find(c => c.hex === hex);
+  return preset ? `${names[preset.key]} (${hex.toUpperCase()})` : hex.toUpperCase();
 }
 
 function orderText() {
@@ -708,10 +821,12 @@ function orderText() {
     `🛢 ${t.oCapacity}: ${t.tonnesLong(state.capacity)}`,
     `🔢 ${t.oProducts}: ${t.pcs(state.products)} (${FUELS.slice(0, state.products).join(', ')})`,
     `🏠 ${t.oRoom}: ${fmtNum(state.roomLength, l)} × ${fmtNum(state.roomWidth, l)} m`,
-    `🎨 ${t.oColor}: ${colorName(t)}`,
+    `🎨 ${t.oColor}: ${colorName(state.color, COLORS, t.colorNames)}`,
+    `🖌 ${t.oPanel}: ${colorName(state.panel, PANELS, t.panelNames)}`,
     `🏷 ${t.oBrand}: ${state.brand.trim() || t.oBrandNo}`,
     `🖼 ${t.oLogo}: ${state.logo ? t.oLogoYes : t.oLogoNo}`,
     `📍 ${t.oLocation}: ${t.locations[state.location]}`,
+    `📞 ${t.oPhone}: ${normalizePhone(state.phone)}`,
     '',
     t.orderOutro,
   ].join('\n');
@@ -721,22 +836,47 @@ function bind(section) {
   const form = section.querySelector('form');
   form.addEventListener('submit', e => e.preventDefault());
 
+  const t = I18N[lang()];
+  // Xona o'lchami: 0 dan boshlanadi, uzunligi 3,5 m, eni 2,5 m dan oshmaydi
+  const roomErr = section.querySelector('[data-room-error]');
   for (const name of ['roomLength', 'roomWidth']) {
     const input = form.elements[name];
     input.addEventListener('input', () => {
       const v = parseFloat(input.value.replace(',', '.'));
       if (!Number.isFinite(v)) return;
-      state[name] = Math.round(clamp(v, 1.5, 6) * 10) / 10;
+      const max = ROOM_MAX[name];
+      roomErr.textContent = v > max ? t.roomMax[name] : '';
+      state[name] = Math.round(clamp(v, ROOM_MIN, max) * 10) / 10;
       update(section, false);
     });
     input.addEventListener('change', () => { input.value = state[name]; });
   }
 
-  section.querySelectorAll('[data-capacity]').forEach(b => b.addEventListener('click', () => {
-    state.capacity = Number(b.dataset.capacity);
-    setPressed(section, 'capacity', state.capacity);
-    update(section, true);
-  }));
+  const capInput = form.elements.capacity;
+  const capErr = section.querySelector('[data-cap-error]');
+  // Qo'lda kiritilgan sig'im: butun tonna, 1 dan 50 gacha
+  capInput.addEventListener('input', () => {
+    const v = parseFloat(capInput.value.replace(',', '.'));
+    if (!Number.isFinite(v) || v < CAP_MIN) return;
+    capErr.textContent = v > CAP_MAX ? t.capacityMax : '';
+    state.capacity = Math.round(clamp(v, CAP_MIN, CAP_MAX));
+    update(section, false);
+  });
+  capInput.addEventListener('change', () => { capInput.value = state.capacity; });
+
+  const phoneInput = section.querySelector('input[name="phone"]');
+  const phoneErr = section.querySelector('[data-phone-error]');
+  phoneInput.addEventListener('input', () => {
+    state.phone = phoneInput.value;
+    if (phoneErr.textContent && normalizePhone(state.phone)) {
+      phoneErr.textContent = '';
+      phoneInput.removeAttribute('aria-invalid');
+    }
+  });
+  phoneInput.addEventListener('change', () => {
+    const p = normalizePhone(phoneInput.value);
+    if (p) phoneInput.value = state.phone = p;
+  });
   section.querySelectorAll('[data-products]').forEach(b => b.addEventListener('click', () => {
     state.products = Number(b.dataset.products);
     setPressed(section, 'products', state.products);
@@ -758,12 +898,22 @@ function bind(section) {
     setPressed(section, 'color', state.color);
     update(section, false);
   });
+  section.querySelectorAll('[data-panel]').forEach(b => b.addEventListener('click', () => {
+    state.panel = b.dataset.panel;
+    setPressed(section, 'panel', state.panel);
+    form.elements.customPanel.value = state.panel;
+    update(section, false);
+  }));
+  form.elements.customPanel.addEventListener('input', e => {
+    state.panel = e.target.value.toLowerCase();
+    setPressed(section, 'panel', state.panel);
+    update(section, false);
+  });
   form.elements.brand.addEventListener('input', e => {
     state.brand = e.target.value;
     update(section, false);
   });
 
-  const t = I18N[lang()];
   const err = section.querySelector('[data-logo-error]');
   const removeBtn = section.querySelector('[data-remove-logo]');
   const preview = section.querySelector('[data-preview]');
@@ -791,6 +941,13 @@ function bind(section) {
   });
 
   section.querySelector('[data-order]').addEventListener('click', () => {
+    // Telefon raqamisiz buyurtma yuborilmaydi
+    if (!normalizePhone(state.phone)) {
+      phoneErr.textContent = t.phoneBad;
+      phoneInput.setAttribute('aria-invalid', 'true');
+      phoneInput.focus();
+      return;
+    }
     window.open(`https://t.me/${TELEGRAM}?text=${encodeURIComponent(orderText())}`, '_blank', 'noopener');
   });
 

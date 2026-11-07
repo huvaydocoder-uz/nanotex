@@ -127,6 +127,75 @@
   color: var(--cfg-muted);
 }
 
+/* Sig'imni qo'lda kiritish: "tonna" birligi maydon ichida o'ngda turadi */
+.nt-cfg-cap {
+  display: block;
+}
+
+.nt-cfg-cap > span:first-child,
+.nt-cfg-phone > span {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--cfg-muted);
+}
+
+.nt-cfg-unit {
+  position: relative;
+  display: block;
+  max-width: 14rem;
+}
+
+.nt-cfg-form .nt-cfg-unit input[type="number"] {
+  padding-right: 4.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.nt-cfg-unit em {
+  position: absolute;
+  top: 50%;
+  right: 0.95rem;
+  translate: 0 -50%;
+  font-style: normal;
+  font-size: 0.875rem;
+  color: var(--cfg-muted);
+  pointer-events: none;
+}
+
+/* Buyurtma oldidan telefon raqami */
+.nt-cfg-phone {
+  display: block;
+  margin-top: 1rem;
+}
+
+.nt-cfg-phone input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.6rem 0.95rem;
+  border: 1px solid var(--cfg-line);
+  border-radius: 0.85rem;
+  background: var(--cfg-soft);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nt-cfg-phone input::placeholder {
+  color: color-mix(in oklab, var(--color-white) 38%, transparent);
+}
+
+.nt-cfg-phone input:focus-visible {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand) 28%, transparent);
+}
+
+.nt-cfg-phone input[aria-invalid="true"] {
+  border-color: #ff6b62;
+}
+
 .nt-cfg-times {
   padding-bottom: 0.7rem;
   color: var(--cfg-muted);

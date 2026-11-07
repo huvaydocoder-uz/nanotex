@@ -2,7 +2,7 @@
 
 NANOTEX — shaharlar, avtomobil yo‘llari va korxonalar uchun ko‘chma yoqilg‘i quyish shoxobchalari (AYoQSh) loyihasining sayti.
 
-Sayt: https://nanotech-eta.vercel.app
+Sayt: https://nanotexazs.uz
 
 ## Tarkibi
 
@@ -36,3 +36,10 @@ npx serve .
 ## Eslatmalar
 
 - So‘rov shakli `/api/lead` serverless funksiyasiga murojaat qiladi; u ham bu repozitoriyga kirmagan.
+
+## SEO
+
+- `index.html` — 100+ meta teg: description, keywords, robots, Open Graph, Twitter, geo, Dublin Core, hreflang (uz/ru/en/x-default) va Schema.org (Organization, LocalBusiness, WebSite, FAQPage).
+- Til versiyalari: `https://nanotexazs.uz/` (uz), `?lang=ru`, `?lang=en`. Sarlavha, tavsif, canonical va OG teglar tanlangan tilga qarab avtomatik almashadi.
+- `sitemap.xml`, `robots.txt`, `site.webmanifest`.
+- `vercel.json` — `www.nanotexazs.uz` → `nanotexazs.uz` 301 yo‘naltirish va xavfsizlik sarlavhalari.
