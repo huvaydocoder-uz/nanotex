@@ -599,6 +599,275 @@ function miniStation(t) {
   return { svg: out, width: tx + tankL + dv.x + 0.8 * S, left: -0.6 * S, top: -Hk - 2.2 * S };
 }
 
+// ---------- korxonalar uchun shoxobchalar ----------
+// Ishlab chiqarilgan mahsulotlar asosida: kub bak, kiosk, navisli silindr rezervuar va konteyner.
+const FIRE_RED = '#d8232a';
+const PLATE = '#17191c'; // qora g'adir-budir pol va poydevor
+
+// "Yonuvchan" belgisi: qizil hoshiyali oq romb, ichida olov
+function flameSign(cx, cy, r) {
+  return `<g transform="translate(${cx} ${cy})">
+    <polygon points="0,${-r} ${r},0 0,${r} ${-r},0" fill="#ffffff" stroke="${FIRE_RED}" stroke-width="${r * 0.14}" stroke-linejoin="round"/>
+    <path d="M0 ${-r * 0.5} C${r * 0.34} ${-r * 0.16} ${r * 0.3} ${r * 0.2} 0 ${r * 0.24} C${-r * 0.3} ${r * 0.2} ${-r * 0.3} ${-r * 0.06} ${-r * 0.1} ${-r * 0.2} C${-r * 0.08} ${-r * 0.34} 0 ${-r * 0.4} 0 ${-r * 0.5} Z" fill="${FIRE_RED}"/>
+    <rect x="${-r * 0.32}" y="${r * 0.32}" width="${r * 0.64}" height="${r * 0.08}" fill="${FIRE_RED}"/></g>`;
+}
+
+function noSmoking(cx, cy, r) {
+  return `<g transform="translate(${cx} ${cy})"><circle r="${r}" fill="#ffffff" stroke="${FIRE_RED}" stroke-width="${r * 0.2}"/>
+    <rect x="${-r * 0.5}" y="${-r * 0.1}" width="${r * 0.8}" height="${r * 0.22}" fill="#2b2f33"/>
+    <path d="M${-r * 0.64} ${-r * 0.64} L${r * 0.64} ${r * 0.64}" stroke="${FIRE_RED}" stroke-width="${r * 0.2}"/></g>`;
+}
+
+// Qizil "ОГНЕОПАСНО" yozuvi: berilgan kenglikka aniq sig'adi
+function fireText(cx, cy, width, italic) {
+  return `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" textLength="${width}" lengthAdjust="spacingAndGlyphs" font-family="${italic ? 'Montserrat, ' : ''}Inter, Arial, sans-serif" font-weight="800" ${italic ? 'font-style="italic"' : ''} font-size="${width / 6.6}" fill="${FIRE_RED}">ОГНЕОПАСНО</text>`;
+}
+
+// Yonilg'i belgilari bir qatorda (kichik bak uchun)
+function fuelRow(x, y, w, h, n, c) {
+  const gap = w * 0.04, pw = (w - gap * (n - 1)) / n;
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const px = x + i * (pw + gap);
+    out += `<rect x="${px}" y="${y}" width="${pw}" height="${h}" rx="3" fill="#ffffff" stroke="${c}" stroke-width="1.5"/>
+      <text x="${px + pw / 2}" y="${y + h / 2}" dominant-baseline="central" text-anchor="middle" font-family="Saira, Inter, sans-serif" font-weight="700" font-size="${Math.min(h * 0.6, pw * 0.3)}" fill="#1b1d20">${FUELS[i]}</text>`;
+  }
+  return out;
+}
+
+// Kolonka: oq korpus, qora boshcha, displey, qizil belgi va pastida rangli yoy
+function pumpUnit(x, n, c) {
+  const w = 0.72 * S, h = 1.8 * S, head = 0.58 * S;
+  let nozzles = '';
+  for (let i = 0; i < n; i++) {
+    const nx = x + 0.08 * S + i * ((w - 0.16 * S) / n) + 1;
+    nozzles += `<rect x="${nx}" y="${-h + head + 0.5 * S}" width="${Math.min(0.11 * S, (w - 0.2 * S) / n - 2)}" height="${0.26 * S}" rx="1.5" fill="${NOZZLE_COLORS[i % NOZZLE_COLORS.length]}"/>`;
+  }
+  return `
+    <rect x="${x + 0.06 * S}" y="${-h}" width="${w}" height="${h}" fill="#c9cdd1"/>
+    <rect x="${x}" y="${-h}" width="${w}" height="${h}" rx="2" fill="#f7f8f8"/>
+    <path d="M${x + 0.05 * S} ${-0.14 * S} Q${x + 0.2 * S} ${-0.52 * S} ${x + w - 0.04 * S} ${-0.62 * S}" stroke="#1e5bd8" stroke-width="${0.05 * S}" fill="none"/>
+    <path d="M${x + 0.14 * S} ${-0.14 * S} Q${x + 0.28 * S} ${-0.46 * S} ${x + w - 0.04 * S} ${-0.52 * S}" stroke="${FIRE_RED}" stroke-width="${0.05 * S}" fill="none"/>
+    <rect x="${x}" y="${-0.1 * S}" width="${w}" height="${0.1 * S}" fill="${c}"/>
+    <rect x="${x - 0.03 * S}" y="${-h}" width="${w + 0.06 * S}" height="${head}" rx="2" fill="#1f2226"/>
+    <rect x="${x + 0.07 * S}" y="${-h + 0.1 * S}" width="${0.2 * S}" height="${0.3 * S}" fill="#b9c0c5"/>
+    <rect x="${x + 0.34 * S}" y="${-h + 0.1 * S}" width="${0.3 * S}" height="${0.2 * S}" fill="#a9bdb0"/>
+    <circle cx="${x + 0.49 * S}" cy="${-h + 0.44 * S}" r="${0.045 * S}" fill="${FIRE_RED}"/>
+    <rect x="${x + w / 2 - 0.07 * S}" y="${-h + head + 0.14 * S}" width="${0.14 * S}" height="${0.18 * S}" rx="${0.05 * S}" fill="${FIRE_RED}"/>
+    ${nozzles}
+    <path d="M${x + w} ${-h * 0.5} q${0.3 * S} ${0.45 * S} 0 ${0.8 * S}" stroke="#17191c" stroke-width="2.5" fill="none"/>`;
+}
+
+function yardPad(x0, x1, dv, k = 1.5) {
+  return `<polygon points="${x0},${0.16 * S} ${x1},${0.16 * S} ${x1 + dv.x * k},${dv.y * k} ${x0 + dv.x * k},${dv.y * k}" fill="#d8d6cf"/>
+    <rect x="${x0}" y="${0.16 * S}" width="${x1 - x0}" height="${0.12 * S}" fill="#b9b6ad"/>`;
+}
+
+// 1–2 tonna: oyoqli kub bak, yon tomonida nasos va shlang
+function cubeStation(t) {
+  const c = state.color, panel = state.panel, cap = state.capacity, n = state.products;
+  const Wb = (1.3 + cap * 0.3) * S, Hb = (1.15 + cap * 0.12) * S, leg = 0.5 * S;
+  const D = Wb * 0.42;
+  const dv = { x: D * 0.7, y: -D * 0.42 };
+  const top = -leg - Hb;
+  const legW = 0.12 * S;
+  const legAt = (x, y) => `<rect x="${x}" y="${y - leg}" width="${legW}" height="${leg}" fill="#eceeef" stroke="#c3c7cb" stroke-width="1"/>`;
+  let out = yardPad(-0.7 * S, Wb + 0.6 * S, dv);
+  out += legAt(dv.x + 0.03 * S, dv.y) + legAt(Wb + dv.x - legW - 0.03 * S, dv.y);
+  out += prism(0, top, Wb, Hb, dv, '#f5f6f6', '#ffffff', '#d3d7da');
+  out += `<rect x="0" y="${-leg - 0.1 * S}" width="${Wb}" height="${0.1 * S}" fill="${c}"/>`;
+  // old oyoqlar va burchak kosinkalari
+  out += legAt(0.03 * S, 0) + legAt(Wb - legW - 0.03 * S, 0);
+  out += `<polygon points="${0.15 * S},${-leg} ${0.5 * S},${-leg} ${0.15 * S},${-leg + 0.3 * S}" fill="#e3e5e7"/>
+    <polygon points="${Wb - 0.15 * S},${-leg} ${Wb - 0.5 * S},${-leg} ${Wb - 0.15 * S},${-leg + 0.3 * S}" fill="#e3e5e7"/>`;
+  // brend lavhasi va yonilg'i belgilari
+  const bx = Wb * 0.42, bw = Wb * 0.52, bh = Hb * 0.26, by = top + Hb * 0.3;
+  out += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="4" fill="${panel}"/>`;
+  out += brandBlock(bx + bw * 0.05, by + bh * 0.12, bw * 0.9, bh * 0.76, c, onColor(panel), t);
+  out += fuelRow(bx, by + bh + 0.14 * S, bw, 0.24 * S, n, c);
+  // nasos, hisoblagich, shlang va pistolet
+  const px = 0.12 * S, py = top + Hb * 0.16, pw = 0.5 * S, ph = 0.44 * S;
+  out += `<path d="M${px + pw * 0.75} ${py + ph} C${px + pw * 1.2} ${-leg + 0.2 * S} ${px - 0.5 * S} ${-leg + 0.25 * S} ${px - 0.16 * S} ${py + ph * 0.7}" stroke="#17191c" stroke-width="${0.075 * S}" fill="none" stroke-linecap="round"/>
+    <rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="3" fill="#c62828"/>
+    <rect x="${px + 0.06 * S}" y="${py + 0.07 * S}" width="${pw * 0.42}" height="${ph * 0.42}" fill="#20242a"/>
+    <rect x="${px + 0.09 * S}" y="${py + 0.1 * S}" width="${pw * 0.3}" height="${ph * 0.16}" fill="#9fd3e8"/>
+    <g transform="translate(${px - 0.16 * S} ${py + ph * 0.7}) rotate(-28)"><rect x="${-0.34 * S}" y="${-0.07 * S}" width="${0.4 * S}" height="${0.14 * S}" rx="3" fill="${FIRE_RED}"/><rect x="${-0.52 * S}" y="${-0.03 * S}" width="${0.2 * S}" height="${0.06 * S}" fill="#9aa0a6"/></g>`;
+  out += flameSign(px + pw + 0.2 * S, py + ph + 0.22 * S, 0.13 * S);
+  // nafas klapani
+  out += `<rect x="${Wb * 0.62 + dv.x * 0.5}" y="${top + dv.y * 0.5 - 0.3 * S}" width="${0.08 * S}" height="${0.3 * S}" fill="#aeb4b9"/>
+    <rect x="${Wb * 0.62 + dv.x * 0.5 - 0.07 * S}" y="${top + dv.y * 0.5 - 0.38 * S}" width="${0.22 * S}" height="${0.1 * S}" rx="2" fill="#c9cdd1"/>`;
+  return { svg: out, width: Wb + dv.x + 0.6 * S, left: -0.7 * S, top: top + dv.y - 0.55 * S };
+}
+
+// 3–5 tonna: oq ramkali kiosk — chapda kolonka, o'ngda rezervuar shkafi
+function kioskStation(t) {
+  const c = state.color, panel = state.panel, cap = state.capacity, n = state.products;
+  const D = clamp(state.roomWidth, 1.2, ROOM_MAX.roomWidth) * S * 0.5;
+  const dv = { x: D * 0.7, y: -D * 0.42 };
+  const Hk = 2.3 * S, roofT = 0.26 * S, Hc = Hk - roofT;
+  const K = Math.max(clamp(state.roomLength * 0.5, 1.1, 1.75), n > 3 ? 1.5 : 1.1) * S;
+  const Lc = (1.2 + cap * 0.2) * S;
+  const L = K + Lc;
+  let out = yardPad(-0.5 * S, L + 0.7 * S, dv);
+  // kolonka bo'lmasi: pol, orqa va chap devor
+  out += `<polygon points="0,0 ${K},0 ${K + dv.x},${dv.y} ${dv.x},${dv.y}" fill="#2a2d31"/>
+    <rect x="${dv.x}" y="${-Hk + dv.y}" width="${K}" height="${Hk}" fill="#eef0f1"/>
+    <polygon points="0,0 ${dv.x},${dv.y} ${dv.x},${-Hk + dv.y} 0,${-Hk}" fill="#dfe2e4"/>`;
+  out += `<g transform="translate(${dv.x * 0.45} ${dv.y * 0.45})">${pumpUnit((K - 0.72 * S) / 2 + 0.08 * S, n, c)}</g>`;
+  // rezervuar shkafi
+  out += prism(K, -Hc, Lc, Hc, dv, panel, panel, shade(panel, -0.22));
+  out += `<path d="M${K + Lc * 0.45} ${-Hc} V0" stroke="${shade(panel, -0.18)}" stroke-width="1.5"/>
+    <polygon points="${L + dv.x * 0.25},${-Hk * 0.7 + dv.y * 0.25} ${L + dv.x * 0.78},${-Hk * 0.7 + dv.y * 0.78} ${L + dv.x * 0.78},${-Hk * 0.3 + dv.y * 0.78} ${L + dv.x * 0.25},${-Hk * 0.3 + dv.y * 0.25}" fill="${shade(panel, -0.32)}" stroke="${shade(panel, -0.5)}" stroke-width="1.5"/>
+    <rect x="${K}" y="${-Hc}" width="${Lc}" height="${0.05 * S}" fill="${c}"/>`;
+  out += brandBlock(K + 0.15 * S, -Hc + 0.2 * S, Lc - 0.3 * S, 0.42 * S, c, onColor(panel), t);
+  out += fuelPlates(K + 0.2 * S, -Hc + 0.82 * S, n, c, Hc - 1.2 * S);
+  out += flameSign(L - 0.36 * S, -0.62 * S, 0.17 * S);
+  // tom: ustki yuz, o'ng qiya chet va yumaloq burchakli oq ramka
+  const rx1 = L + 0.32 * S;
+  out += `<polygon points="${0.4 * S},${-Hk} ${rx1},${-Hk} ${rx1 + dv.x},${-Hk + dv.y} ${0.4 * S + dv.x},${-Hk + dv.y}" fill="#eef0f1"/>
+    <polygon points="${rx1},${-Hk} ${rx1 + dv.x},${-Hk + dv.y} ${L + 0.08 * S + dv.x},${-Hc + dv.y} ${L + 0.08 * S},${-Hc}" fill="#cfd3d6"/>
+    <path d="M${0.13 * S} 0 V${-Hk + 0.62 * S} Q${0.13 * S} ${-Hk + 0.13 * S} ${0.62 * S} ${-Hk + 0.13 * S} H${L + 0.2 * S}" stroke="#fafafa" stroke-width="${roofT}" fill="none"/>
+    <polygon points="${L + 0.19 * S},${-Hk} ${rx1},${-Hk} ${L + 0.08 * S},${-Hc} ${L + 0.19 * S},${-Hc}" fill="#fafafa"/>
+    <path d="M${0.27 * S} 0 V${-Hk + 0.66 * S} Q${0.27 * S} ${-Hc + 0.01 * S} ${0.66 * S} ${-Hc + 0.01 * S}" stroke="#d5d8db" stroke-width="1.5" fill="none"/>`;
+  // nafas klapani va poydevor
+  const vx = K + Lc * 0.62 + dv.x * 0.5, vy = -Hk + dv.y * 0.5;
+  out += `<rect x="${vx}" y="${vy - 0.3 * S}" width="${0.08 * S}" height="${0.3 * S}" fill="#aeb4b9"/>
+    <rect x="${vx - 0.07 * S}" y="${vy - 0.38 * S}" width="${0.22 * S}" height="${0.1 * S}" rx="2" fill="#c9cdd1"/>
+    <polygon points="${L},0 ${L + dv.x},${dv.y} ${L + dv.x},${dv.y - 0.13 * S} ${L},${-0.13 * S}" fill="#0f1113"/>
+    <rect x="0" y="${-0.13 * S}" width="${L}" height="${0.13 * S}" fill="${PLATE}"/>`;
+  return { svg: out, width: rx1 + dv.x + 0.6 * S, left: -0.5 * S, top: -Hk + dv.y - 0.6 * S };
+}
+
+// 6–20 tonna: tayanchli gorizontal silindr rezervuar, yonida yoysimon navis ostidagi kolonka
+function tankStation(t) {
+  const c = state.color, panel = state.panel, cap = state.capacity, n = state.products;
+  const dm = clamp(1.9 + (cap - 8) * 0.05, 1.7, 2.7);
+  const d = dm * S;
+  const tankL = clamp((cap * 1.2) / ((Math.PI * dm * dm) / 4), 2.6, 7.5) * S;
+  const legH = 0.32 * S, ty = -legH - d;
+  // Navis maydoni: uzunligi va eni operator xonasi o'lchamlaridan olinadi
+  const P = clamp(state.roomLength, 1.6, ROOM_MAX.roomLength) * 0.8 * S;
+  const D = clamp(state.roomWidth, 1.2, ROOM_MAX.roomWidth) * S * 0.55;
+  const dv = { x: D * 0.7, y: -D * 0.42 };
+  const px0 = tankL + 0.2 * S, px1 = px0 + P;
+  const Hc = Math.max(2.5 * S, legH + d + 0.2 * S);
+  const pt = -0.12 * S; // maydon usti
+  const post = (x, y) => `<rect x="${x}" y="${y - Hc - pt}" width="${0.09 * S}" height="${Hc + pt}" fill="#f4f5f5" stroke="#c9cdd1" stroke-width="0.8"/>`;
+
+  let out = yardPad(-1.0 * S, px1 + 0.6 * S, dv);
+  // g'adir-budir po'lat maydon
+  out += `<polygon points="${px0 - 0.1 * S},${pt} ${px1},${pt} ${px1 + dv.x},${pt + dv.y} ${px0 - 0.1 * S + dv.x},${pt + dv.y}" fill="#3b3f44"/>
+    <polygon points="${px1},${pt} ${px1 + dv.x},${pt + dv.y} ${px1 + dv.x},${dv.y} ${px1},0" fill="#0f1113"/>
+    <rect x="${px0 - 0.1 * S}" y="${pt}" width="${P + 0.1 * S}" height="${-pt}" fill="${PLATE}"/>`;
+  out += post(px0 - 0.05 * S + dv.x, pt + dv.y) + post(px1 - 0.12 * S + dv.x, pt + dv.y);
+
+  // rezervuar (maydon chuqurligining o'rtasida)
+  let tank = '';
+  // narvon
+  const lx = -0.5 * S, lTop = ty - 0.45 * S;
+  let rungs = '';
+  for (let y = -0.3 * S; y > lTop + 0.1 * S; y -= 0.3 * S) rungs += `M${lx} ${y} h${0.34 * S} `;
+  tank += `<path d="M${lx} 0 V${lTop} M${lx + 0.34 * S} 0 V${lTop} ${rungs}" stroke="#8d9399" stroke-width="4.5" fill="none"/>
+    <path d="M${lx} 0 V${lTop} M${lx + 0.34 * S} 0 V${lTop} ${rungs}" stroke="#fafafa" stroke-width="2.5" fill="none"/>
+    <path d="M${lx + 0.34 * S} ${ty + d * 0.2} H2 M${lx + 0.34 * S} ${ty + d * 0.8} H2" stroke="#e3e5e7" stroke-width="3"/>`;
+  tank += `<rect x="0" y="${ty}" width="${tankL}" height="${d}" rx="${d * 0.06}" fill="url(#cfgTank)"/>
+    <path d="M${tankL * 0.34} ${ty + 2} V${ty + d - 2} M${tankL * 0.67} ${ty + 2} V${ty + d - 2}" stroke="#c9cdd1" stroke-width="1.2"/>
+    <rect x="0" y="${ty + d * 0.8}" width="${tankL}" height="${d * 0.045}" fill="${c}"/>
+    <ellipse cx="${tankL}" cy="${ty + d / 2}" rx="${d * 0.2}" ry="${d / 2}" fill="#e9ebec" stroke="#c6cace" stroke-width="1"/>`;
+  tank += flameSign(tankL + d * 0.03, ty + d * 0.42, d * 0.12);
+  // tayanchlar
+  for (const sx of [tankL * 0.17, tankL * 0.8]) {
+    tank += `<polygon points="${sx - 0.3 * S},${-0.07 * S} ${sx + 0.3 * S},${-0.07 * S} ${sx + 0.2 * S},${ty + d * 0.74} ${sx - 0.2 * S},${ty + d * 0.74}" fill="#f1f2f3" stroke="#bfc4c8" stroke-width="1"/>
+      <rect x="${sx - 0.38 * S}" y="${-0.07 * S}" width="${0.76 * S}" height="${0.07 * S}" fill="#dfe2e4"/>`;
+  }
+  // lyuk maydonchasi va nafas trubasi
+  const mx = tankL * 0.6;
+  tank += `<rect x="${mx - 0.24 * S}" y="${ty - 0.26 * S}" width="${0.48 * S}" height="${0.28 * S}" fill="#dfe2e4"/>
+    <ellipse cx="${mx}" cy="${ty - 0.26 * S}" rx="${0.3 * S}" ry="${0.07 * S}" fill="#eef0f1" stroke="#b9bec3" stroke-width="1"/>
+    <rect x="${mx - 0.62 * S}" y="${ty - 0.09 * S}" width="${1.24 * S}" height="${0.08 * S}" fill="#c9cdd1"/>
+    <rect x="${mx + 0.74 * S}" y="${ty - 0.72 * S}" width="${0.07 * S}" height="${0.74 * S}" fill="#b9bec3"/>
+    <rect x="${mx + 0.68 * S}" y="${ty - 0.8 * S}" width="${0.19 * S}" height="${0.1 * S}" rx="2" fill="#d2d6d9"/>`;
+  // brend va "ОГНЕОПАСНО"
+  tank += brandBlock(tankL * 0.06, ty + d * 0.13, tankL * 0.5, d * 0.17, c, '#1b1d20', t);
+  const fw = Math.min(tankL * 0.62, 3.6 * S), fcx = tankL * 0.44, fcy = ty + d * 0.55;
+  tank += fireText(fcx, fcy, fw, true);
+  tank += flameSign(fcx + fw / 2 + fw * 0.11, fcy, fw * 0.075);
+  out += `<g transform="translate(${dv.x * 0.2} ${dv.y * 0.2})">${tank}</g>`;
+
+  // kolonka va old ustunlar
+  out += `<g transform="translate(${dv.x * 0.45} ${pt + dv.y * 0.45})">${pumpUnit(px0 + Math.max(0.5 * S, (P - 0.72 * S) / 2), n, c)}</g>`;
+  out += post(px0 - 0.05 * S, pt) + post(px1 - 0.12 * S, pt);
+  // yoysimon tom: old chetdan orqa chetga ko'tarilib tushadi
+  const rx0 = px0 - 0.45 * S, rx1 = px1 + 0.25 * S, bulge = 0.22 * S;
+  const fx = -dv.x * 0.12, fy = -dv.y * 0.12, bx = dv.x * 1.12, by = dv.y * 1.12;
+  const mxo = (fx + bx) / 2, myo = (fy + by) / 2 - bulge * 1.6;
+  const arc = x => `M${x + fx} ${-Hc + fy} Q${x + mxo} ${-Hc + myo} ${x + bx} ${-Hc + by}`;
+  let ribs = '';
+  for (let i = 1; i < 7; i++) ribs += arc(rx0 + ((rx1 - rx0) * i) / 7) + ' ';
+  out += `<path d="M${rx0 + fx} ${-Hc + fy} L${rx1 + fx} ${-Hc + fy} Q${rx1 + mxo} ${-Hc + myo} ${rx1 + bx} ${-Hc + by} L${rx0 + bx} ${-Hc + by} Q${rx0 + mxo} ${-Hc + myo} ${rx0 + fx} ${-Hc + fy} Z" fill="${panel}"/>
+    <path d="${ribs}" stroke="${shade(panel, luminance(panel) > 0.4 ? -0.14 : 0.16)}" stroke-width="1" fill="none"/>
+    <path d="${arc(rx1)}" stroke="#f4f5f5" stroke-width="${0.06 * S}" fill="none"/>
+    <rect x="${rx0 + fx}" y="${-Hc + fy}" width="${rx1 - rx0}" height="${0.08 * S}" fill="#f4f5f5"/>
+    <rect x="${rx0 + fx}" y="${-Hc + fy + 0.08 * S}" width="${rx1 - rx0}" height="${0.035 * S}" fill="${c}"/>`;
+  const topY = Math.min(-Hc + myo, ty - 0.8 * S + dv.y * 0.2);
+  return { svg: out, width: rx1 + bx + 0.5 * S, left: -1.0 * S, top: topY - 0.3 * S };
+}
+
+// 20 tonnadan katta: konteyner tipidagi shoxobcha (35 t gacha 20 futli, undan katta 40 futli)
+function boxStation(t) {
+  const c = state.color, panel = state.panel, n = state.products;
+  const L = (state.capacity <= 35 ? 6.06 : 12.19) * S, Hc = 2.6 * S;
+  const D = 2.44 * S * 0.55;
+  const dv = { x: D * 0.7, y: -D * 0.42 };
+  let out = yardPad(-0.5 * S, L + 0.7 * S, dv);
+  out += prism(0, -Hc, L, Hc, dv, '#f5f6f6', '#fcfcfc', '#dde0e3');
+  // gofra devor
+  let ribs = '';
+  for (let x = 0.3 * S; x < L - 0.3 * S; x += 0.3 * S) ribs += `<rect x="${x}" y="${-Hc + 0.14 * S}" width="${0.13 * S}" height="${Hc - 0.36 * S}"/>`;
+  out += `<g fill="#e2e5e8">${ribs}</g>
+    <rect x="0" y="${-Hc}" width="${L}" height="${0.12 * S}" fill="#eceeef"/>
+    <rect x="0" y="${-0.2 * S}" width="${L}" height="${0.2 * S}" fill="${c}"/>
+    <rect x="${L * 0.36}" y="${-0.16 * S}" width="${0.36 * S}" height="${0.11 * S}" fill="#17191c" opacity="0.75"/>
+    <rect x="${L * 0.64 - 0.36 * S}" y="${-0.16 * S}" width="${0.36 * S}" height="${0.11 * S}" fill="#17191c" opacity="0.75"/>`;
+  // burchak quymalari va ogohlantirish chiziqlari
+  for (const [x, y] of [[0, -Hc], [L - 0.17 * S, -Hc], [0, -0.17 * S], [L - 0.17 * S, -0.17 * S]]) {
+    out += `<rect x="${x}" y="${y}" width="${0.17 * S}" height="${0.17 * S}" fill="#d3d7da" stroke="#b5babf" stroke-width="0.8"/>`;
+  }
+  for (const x of [0.22 * S, L - 0.6 * S]) {
+    out += `<rect x="${x}" y="${-Hc + 0.15 * S}" width="${0.38 * S}" height="${0.07 * S}" fill="#f2c200"/>
+      <path d="M${x + 0.07 * S} ${-Hc + 0.15 * S} l${0.05 * S} ${0.07 * S} M${x + 0.19 * S} ${-Hc + 0.15 * S} l${0.05 * S} ${0.07 * S} M${x + 0.31 * S} ${-Hc + 0.15 * S} l${0.05 * S} ${0.07 * S}" stroke="#17191c" stroke-width="2.5"/>`;
+  }
+  // tavaqali eshiklar (o'ng yon tomonda)
+  let rods = '';
+  for (const f of [0.18, 0.36, 0.64, 0.82]) rods += `M${L + dv.x * f} ${-Hc + 0.1 * S + dv.y * f} V${-0.1 * S + dv.y * f} `;
+  out += `<path d="${rods}" stroke="#b3b8bd" stroke-width="2" fill="none"/>
+    <path d="M${L + dv.x * 0.5} ${-Hc + dv.y * 0.5} V${dv.y * 0.5}" stroke="#4a4f55" stroke-width="2"/>
+    <polygon points="${L},0 ${L + dv.x},${dv.y} ${L + dv.x},${dv.y - 0.2 * S} ${L},${-0.2 * S}" fill="${shade(c, -0.28)}"/>`;
+  // brend lavhasi va yonilg'i belgilari
+  out += `<rect x="${0.3 * S}" y="${-Hc + 0.32 * S}" width="${1.5 * S}" height="${0.52 * S}" rx="4" fill="${panel}"/>`;
+  out += brandBlock(0.37 * S, -Hc + 0.37 * S, 1.36 * S, 0.42 * S, c, onColor(panel), t);
+  out += fuelPlates(0.52 * S, -Hc + 1.02 * S, n, c, Hc - 1.45 * S);
+  // "ОГНЕОПАСНО" lavhasi, belgilar va elektr shchiti
+  const sx = Math.max(2.05 * S, L * 0.3), sw = Math.min(3.6 * S, L * 0.43), sh = sw * 0.2, sy = -Hc * 0.62;
+  out += `<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" fill="#fcfcfc" stroke="#aeb4b9" stroke-width="1.5"/>`;
+  out += fireText(sx + sw / 2, sy + sh / 2, sw * 0.84, false);
+  out += flameSign(sx - 0.24 * S, sy + sh + 0.3 * S, 0.17 * S);
+  out += noSmoking(sx + sw + 0.36 * S, sy + sh / 2 + 0.1 * S, 0.22 * S);
+  const ex = L - 0.95 * S, ey = -Hc + 0.32 * S;
+  out += `<rect x="${ex}" y="${ey}" width="${0.5 * S}" height="${0.55 * S}" fill="#aab0b5" stroke="#8d9399" stroke-width="1"/>
+    <polygon points="${ex + 0.25 * S},${ey + 0.14 * S} ${ex + 0.37 * S},${ey + 0.36 * S} ${ex + 0.13 * S},${ey + 0.36 * S}" fill="#f2c200" stroke="#17191c" stroke-width="1"/>`;
+  return { svg: out, width: L + dv.x + 0.6 * S, left: -0.5 * S, top: -Hc + dv.y - 0.45 * S };
+}
+
+// Korxona hududi: sig'imga qarab mos mahsulot turi tanlanadi
+function companyStation(t) {
+  const cap = state.capacity;
+  if (cap <= 2) return cubeStation(t);
+  if (cap <= 5) return kioskStation(t);
+  if (cap <= 20) return tankStation(t);
+  return boxStation(t);
+}
+
 function pylon(c, x) {
   // Narx ustuni: shahar va trassada
   const n = state.products, top = PYLON_TOP, w = PYLON_W, rowH = 28;
@@ -619,7 +888,7 @@ function pylon(c, x) {
 
 function buildSvg(t, aspect) {
   const loc = state.location;
-  const st = state.capacity <= 10 ? miniStation(t) : containerStation(t);
+  const st = loc === 'company' ? companyStation(t) : state.capacity <= 10 ? miniStation(t) : containerStation(t);
   const showPylon = loc !== 'company';
   const maxW = showPylon ? 940 : 1060;
   const sc = Math.min(1.45, maxW / (st.width - st.left), 300 / -st.top);
