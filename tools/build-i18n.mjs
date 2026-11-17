@@ -11,7 +11,8 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = 'https://nanotexazs.uz/';
-const src = readFileSync(join(ROOT, 'index.html'), 'utf8');
+// Windows'da git CRLF bilan chiqarishi mumkin: naqshlar LF bo'yicha yozilgan
+const src = readFileSync(join(ROOT, 'index.html'), 'utf8').replace(/\r\n/g, '\n');
 
 const UZ = {
   title: 'Ko‘chma AYoQSh ishlab chiqarish — NANOTEX | 50 tonnagacha',
