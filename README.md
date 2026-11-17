@@ -42,4 +42,7 @@ npx serve .
 - `index.html` — 100+ meta teg: description, keywords, robots, Open Graph, Twitter, geo, Dublin Core, hreflang (uz/ru/en/x-default) va Schema.org (Organization, LocalBusiness, WebSite, FAQPage).
 - Til versiyalari: `https://nanotexazs.uz/` (uz), `?lang=ru`, `?lang=en`. Sarlavha, tavsif, canonical va OG teglar tanlangan tilga qarab avtomatik almashadi.
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`.
-- `vercel.json` — `www.nanotexazs.uz` → `nanotexazs.uz` 301 yo‘naltirish va xavfsizlik sarlavhalari.
+- `vercel.json` — `www.nanotexazs.uz` → `nanotexazs.uz` 308 yo‘naltirish, xavfsizlik sarlavhalari, `?lang=ru|en` → `i18n/ru.html|en.html`.
+- `i18n/ru.html`, `i18n/en.html` — robotlar JavaScript’siz ham to‘g‘ri til, sarlavha va canonical’ni ko‘rishi uchun. `index.html` dan yasaladi: **`index.html` o‘zgarganda `node tools/build-i18n.mjs` ni ishga tushiring.**
+- Google Search Console va Yandex Webmaster tasdiqlash meta teglari `index.html` da (o‘chirmang). IndexNow kaliti: `c30a3eea181a4380e3ff834f913d1fe6.txt`.
+- `favicon.ico`, `brand/icons/` (48, 180, 192, 512 px), `404.html`.
