@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-11-02T10:50:05.267Z",
         "reason": "user requested: footer slogan text must shimmer as an animation (Sifat • Ishonch • Samaradorlik)"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          "404.html"
+        ],
+        "createdAt": "2026-11-17T10:59:46.536Z",
+        "reason": "agent: 404.html mirrors the site's existing body font (Inter ships in assets/inter-*.woff2 and is used site-wide)"
       }
     ]
   }
