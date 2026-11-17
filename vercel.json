@@ -1,25 +1,37 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "redirects": [
+  "routes": [
     {
-      "source": "/:path*",
+      "src": "/(.*)",
       "has": [{ "type": "host", "value": "www.nanotexazs.uz" }],
-      "destination": "https://nanotexazs.uz/:path*",
-      "permanent": true
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
-      ]
+      "status": 308,
+      "headers": { "Location": "https://nanotexazs.uz/$1" }
     },
     {
-      "source": "/sitemap.xml",
-      "headers": [{ "key": "Content-Type", "value": "application/xml; charset=utf-8" }]
-    }
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "SAMEORIGIN"
+      },
+      "continue": true
+    },
+    {
+      "src": "/sitemap\\.xml",
+      "headers": { "Content-Type": "application/xml; charset=utf-8" },
+      "continue": true
+    },
+    {
+      "src": "/(index\\.html)?",
+      "has": [{ "type": "query", "key": "lang", "value": "ru" }],
+      "dest": "/i18n/ru.html"
+    },
+    {
+      "src": "/(index\\.html)?",
+      "has": [{ "type": "query", "key": "lang", "value": "en" }],
+      "dest": "/i18n/en.html"
+    },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
   ]
 }
